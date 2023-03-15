@@ -3,25 +3,28 @@ from django.contrib.auth.models import User
 from news_portal.resources import TYPES
 
 
+class User(User):
+    pass
+
+
 class Author(models.Model):
     username = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     author_rating = models.IntegerField(default=0)
 
     def update_rating(self):
-        posts_ratings = Post.objects.filter(username=self.username).values("post_rating")
-        for pr in posts_ratings:
-            self.author_rating += posts_ratings[pr]
-            self.save()
-        comments_ratings_self = Comment.objects.filter(username=self.username).values("comment_rating")
-        for crs in comments_ratings_self:
-            self.author_rating += comments_ratings_self[crs]
-            self.save()
-        posts_self = Post.objects.filter(username=self.username).values("post_id")
-        for ps in posts_self:
-            comments_ratings_other = Comment.objects.filter(post_id=posts_self[ps]).values("comment_rating")
-            for cro in comments_ratings_other:
-                self.author_rating += comments_ratings_other[cro]
-            self.save()
+        posts_self = Post.objects.filter(username=self.username).value('post_id', 'post_rating')
+        for i in posts_self:
+            self.author_rating += posts_self.post_rating * 3
+
+        comments_other = Comment.objects.filter(post_id=posts_self.post_id).values('comment_rating')
+        for i in comments_other:
+            self.author_rating += comments_other.comment_rating
+
+        comments_self = Comment.objects.filter(username_id=self.username_id).values('comment_rating')
+        for i in comments_self:
+            self.author_rating += comments_self.comment_rating
+
+        self.save()
 
 
 class Category(models.Model):
@@ -30,7 +33,7 @@ class Category(models.Model):
 
 class Post(models.Model):
     username = models.CharField(max_length=30)
-    post_type = models.CharField(max_length=3, choices=TYPES, default="Тип")
+    post_type = models.CharField(max_length=3, choices=TYPES, default="***")
     created = models.DateTimeField(auto_now_add=True)
     post_cat = models.ManyToManyField(Category, through="PostCategory")
     title = models.CharField(max_length=50, default="Title")

@@ -1,7 +1,4 @@
-news = "NWS"
-article = "ART"
-
 TYPES = [
-    (news, "Новости"),
-    (article, "Статья")
+    ("NWS", "Новости"),
+    ("ART", "Статья")
 ]
