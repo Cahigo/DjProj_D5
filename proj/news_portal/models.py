@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from news_portal.resources import TYPES
+from news_portal.resources import NEWS_TYPES
 
 
 class User(User):
@@ -12,17 +12,19 @@ class Author(models.Model):
     author_rating = models.IntegerField(default=0)
 
     def update_rating(self):
-        posts_self = Post.objects.filter(username=self.username).value('post_id', 'post_rating')
+        self.author_rating = 0
+        posts_self = Post.objects.filter(username_id=self.username_id).values("post_rating")
         for i in posts_self:
-            self.author_rating += posts_self.post_rating * 3
+            self.author_rating += i.get("post_rating")
+        self.author_rating *= 3
 
-        comments_other = Comment.objects.filter(post_id=posts_self.post_id).values('comment_rating')
-        for i in comments_other:
-            self.author_rating += comments_other.comment_rating
-
-        comments_self = Comment.objects.filter(username_id=self.username_id).values('comment_rating')
+        comments_self = Comment.objects.filter(username_id=self.username_id).values("comment_rating")
         for i in comments_self:
-            self.author_rating += comments_self.comment_rating
+            self.author_rating += i.get("comment_rating")
+
+        comments_other = Comment.objects.filter(post__username_id=self.username_id).values("comment_rating")
+        for i in comments_other:
+            self.author_rating += i.get("comment_rating")
 
         self.save()
 
@@ -32,8 +34,8 @@ class Category(models.Model):
 
 
 class Post(models.Model):
-    username = models.CharField(max_length=30)
-    post_type = models.CharField(max_length=3, choices=TYPES, default="***")
+    username = models.ForeignKey(Author, on_delete=models.CASCADE)
+    post_type = models.CharField(max_length=3, choices=NEWS_TYPES, default="***")
     created = models.DateTimeField(auto_now_add=True)
     post_cat = models.ManyToManyField(Category, through="PostCategory")
     title = models.CharField(max_length=50, default="Title")

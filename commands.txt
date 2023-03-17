@@ -1,57 +1,39 @@
-// Импорт приложения
+# Импорт приложения
 from news_portal.models import *
 
-// Создание пользователей
+# Создание пользователей
 User.objects.create_user('Uno')
 User.objects.create_user('Dos')
 
+# Создание объектов Author
+a1 = Author.objects.create(username_id=1)
+a2 = Author.objects.create(username_id=2)
 
-// Создание объектов Author
-uno_author = Author.objects.create()
-uno_author.save()
-dos_author = Author.objects.create()
-dos_author.save()
+# Создание категорий
+Category.objects.create(category='Область')
+Category.objects.create(category='Страна')
+Category.objects.create(category='Политика')
+Category.objects.create(category='Экономика')
 
+# Добавление статей
+p1 = Post.objects.create(username_id=1, post_type=2, title='Статья о политике', text='Текст о политике')
+p2 = Post.objects.create(username_id=1, post_type=2, title='Статья про область', text='Текст про область')
 
-// Создание категорий
-cat1 = Category(1, 'Область')
-cat1.save()
-cat2 = Category(2, 'Страна')
-cat2.save()
-cat3 = Category(3, 'Политика')
-cat3.save()
-cat4 = Category(4, 'Экономика')
-cat4.save()
+# Добавление новости
+p3 = Post.objects.create(username_id=2, post_type=1, title='Новость об экономике', text='Текст об экономике')
 
-// Добавление статей
-p1 = Post.objects.create(username=1, post_type=2, title='Статья о политике', text='Текст о политике')
-p1.save()
-p2 = Post.objects.create(username=1, post_type=2, title='Статья про область', text='Текст про область')
-p2.save()
-
-// Добавление новости
-p3 = Post.objects.create(username=2, post_type=1, title='Новость об экономике', text='Текст об экономике')
-p3.save()
-
-// Присвоение категорий
+# Присвоение категорий
 p1.post_cat.add(1, 3)
-p1.save()
 p2.post_cat.add(1, 2)
-p2.save()
 p3.post_cat.add(2, 4)
-p3.save()
 
-// Добавление комментариев
-c1 = Comment.objects.create(post=p1, username_id=4, text='Капитан очевидность')
-c1.save()
-c2 = Comment.objects.create(post=p1, username_id=3, text='Старый мем')
-c2.save()
-c3 = Comment.objects.create(post=p2, username_id=4, text='А вот это интересно!')
-c3.save()
-c4 = Comment.objects.create(post=p3, username_id=3, text='Ничего не меняется')
-c4.save()
+# Добавление комментариев
+c1 = Comment.objects.create(post=p1, username_id=1, text='Капитан очевидность')
+c2 = Comment.objects.create(post=p1, username_id=2, text='Старый мем')
+c3 = Comment.objects.create(post=p2, username_id=1, text='А вот это интересно!')
+c4 = Comment.objects.create(post=p3, username_id=2, text='Ничего не меняется')
 
-// Рейтинги постов/комментариев
+# Рейтинги постов/комментариев
 p1.like()
 p1.like()
 p1.like()
@@ -66,10 +48,18 @@ c2.dislike()
 c3.like()
 c4.like()
 
-// Обновление рейтингов пользователей
+# Обновление рейтингов пользователей
+a1.update_rating()
+a2.update_rating()
 
-// Username и рейтинг лучшего пользователя
+# Username и рейтинг лучшего пользователя
+Author.objects.order_by("-author_rating").values("username__username", "author_rating").first()
 
-// Дата, username, рейтинг, заголовок и превью лучшего поста
+# Дата, username, рейтинг, заголовок и превью лучшего поста
+top_posts = Post.objects.order_by("-post_rating")
+top_posts.values("created", "username__username__username", "post_rating", "title").first()
+top_posts.first().preview()
 
-// Все комментарии к лучшей статье
+# Все комментарии к лучшей статье
+top_id = top_posts.values("id").first()
+Comment.objects.values("created", "username__username", "comment_rating", "text").filter(post_id=top_id.get("id"))
