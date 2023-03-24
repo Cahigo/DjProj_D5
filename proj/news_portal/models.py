@@ -42,6 +42,9 @@ class Post(models.Model):
     text = models.TextField(default="Text")
     post_rating = models.IntegerField(default=0)
 
+    def __str__(self):
+        return f'{self.title.title()}: {self.preview()}'
+
     def like(self):
         self.post_rating += 1
         self.save()
