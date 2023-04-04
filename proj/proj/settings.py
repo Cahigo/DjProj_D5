@@ -28,7 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+SITE_ID = 1
 # Application definition
 
 INSTALLED_APPS = [
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'news_portal',
     'django.contrib.sites',
     'django.contrib.flatpages',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
