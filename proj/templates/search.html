@@ -4,31 +4,32 @@
 {% load custom_tags %}
 
 {% block title%}
-    Posts
+    Search
 {% endblock title %}
 
 {% block content %}
     <h1>Все посты</h1>
-    <h2>{{ time_now|date:'M d Y' }} Записей: {{ posts|length }}</h2>
+
+    {# Форма фильтра #}
+    <form action="" method="get">
+        {{ filterset.form.as_p }}
+        <input type="submit" value="Найти">
+    </form>
+
+    <h2>{{ time_now|date:'M d Y' }} Записей: {{ search|length }}</h2>
     <hr>
-    {% if posts %}
+    {% if search %}
         <table>
             <tr>
                 <td>Заголовок</td>
-                <td>Превью</td>
-                <td>Категория</td>
+                <td>Автор</td>
                 <td>Дата создания</td>
-                <td>Рейтинг</td>
             </tr>
-            {% for post in posts reversed %}
+            {% for srch in search reversed %}
                 <tr>
-                    <td>{{ post.title|censor }}</td>
-                    <td>{{ post.text|truncatewords:20|censor }}</td>
-                    <td>{{ post.created }}</td>
-                    <td>{{ post.post_rating }}</td>
-                    <td>
-                        <a class="nav-link" href="/{{ post.id }}">Открыть</a>
-                    </td>
+                    <td>{{ srch.title|censor }}</td>
+                    <td>{{ srch.username }}</td>
+                    <td>{{ srch.created }}</td>
                 </tr>
             {% endfor %}
         </table>

@@ -1,15 +1,18 @@
 from django.db import models
 from django.contrib.auth.models import User
-from news_portal.resources import NEWS_TYPES
 
-
-class User(User):
-    pass
+NEWS_TYPES = [
+    ("NWS", "Новости"),
+    ("ART", "Статья")
+]
 
 
 class Author(models.Model):
     username = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     author_rating = models.IntegerField(default=0)
+
+    def __str__(self):
+        return str(self.username)
 
     def update_rating(self):
         self.author_rating = 0
@@ -31,6 +34,9 @@ class Author(models.Model):
 
 class Category(models.Model):
     category = models.CharField(max_length=30, unique=True)
+
+    def __str__(self):
+        return self.category
 
 
 class Post(models.Model):
@@ -68,6 +74,9 @@ class Comment(models.Model):
     text = models.TextField(default="Text")
     created = models.DateTimeField(auto_now_add=True)
     comment_rating = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.text[:10] + "..."
 
     def like(self):
         self.comment_rating += 1
